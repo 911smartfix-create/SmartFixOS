@@ -1,5 +1,14 @@
-import PinAssets from "./PinAssets.jsx";
+import "./App.css";
+import Pages from "@/pages/index.jsx";
+import { Toaster } from "@/components/ui/toaster";
 
-export default function Pages() {
-  return <PinAssets />;
+function App() {
+  return (
+    <>
+      <Pages />
+      <Toaster />
+    </>
+  );
 }
+
+export default App;

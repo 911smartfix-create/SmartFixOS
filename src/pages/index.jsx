@@ -1,3 +1,5 @@
+// src/pages/index.jsx  // 👈 usa este nombre si puedes
+
 import Layout from "./Layout.jsx";
 
 import Dashboard from "./Dashboard";
@@ -14,7 +16,7 @@ import CustomerPortal from "./CustomerPortal";
 import UsersManagement from "./UsersManagement";
 import Technicians from "./Technicians";
 import SettingsGeneral from "./SettingsGeneral";
-import PinAccess from "./PinAccess";
+import PinAccess from "./PinAccess";          // 👈 sigue igual
 import FinancialReports from "./FinancialReports";
 import B2BPortal from "./B2BPortal";
 
@@ -54,28 +56,34 @@ function _getCurrentPage(url) {
     urlLastPart = urlLastPart.split("?")[0];
   }
 
-  // 👇 Nuevo: si estamos en "/", tratamos la página como "PinAccess"
-  if (!urlLastPart) {
-    return "PinAccess"; // 👈
-  }
-
   const pageName = Object.keys(PAGES).find(
     (page) => page.toLowerCase() === urlLastPart.toLowerCase()
   );
   return pageName || Object.keys(PAGES)[0];
 }
 
-// Create a wrapper component that uses useLocation inside the Router context
+// === AQUÍ va el truco: PinAccess SIN Layout cuando estás en "/" o "/PinAccess" 👇
 function PagesContent() {
   const location = useLocation();
+  const path = location.pathname.toLowerCase();     // 👈
+  const isPinRoute = path === "/" || path === "/pinaccess"; // 👈
+
+  if (isPinRoute) {
+    // 👇 Pantalla de PIN sola, sin Layout, sin barra
+    return (
+      <Routes>
+        <Route path="/" element={<PinAccess />} />
+        <Route path="/PinAccess" element={<PinAccess />} />
+      </Routes>
+    );
+  }
+
   const currentPage = _getCurrentPage(location.pathname);
 
   return (
     <Layout currentPageName={currentPage}>
       <Routes>
-        {/* 👇 Ruta raíz ahora muestra PinAccess */}
-        <Route path="/" element={<PinAccess />} /> {/* 👈 */}
-
+        {/* 👇 ya NO usamos "/" aquí, solo rutas internas del sistema */}
         <Route path="/Dashboard" element={<Dashboard />} />
         <Route path="/Orders" element={<Orders />} />
         <Route path="/Customers" element={<Customers />} />
@@ -90,9 +98,11 @@ function PagesContent() {
         <Route path="/UsersManagement" element={<UsersManagement />} />
         <Route path="/Technicians" element={<Technicians />} />
         <Route path="/SettingsGeneral" element={<SettingsGeneral />} />
-        <Route path="/PinAccess" element={<PinAccess />} />
         <Route path="/FinancialReports" element={<FinancialReports />} />
         <Route path="/B2BPortal" element={<B2BPortal />} />
+
+        {/* fallback por si escribes una ruta rara → vuelve al PIN */}
+        <Route path="*" element={<PinAccess />} />  {/* 👈 */}
       </Routes>
     </Layout>
   );
